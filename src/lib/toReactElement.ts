@@ -69,7 +69,7 @@ const toReactElement = (htmlString: string): VNode => {
 				nodeMap.set(node, root);
 			} else if (node.type === 'Element') {
 				newNode.type = node.name;
-				const { ...props } = node.attributes;
+				let { ...props } = node.attributes;
 				if (node.attributes.length > 0) {
 					node.attributes.forEach((attribute: any) => {
 						if (attribute.name === 'style') {
@@ -78,6 +78,13 @@ const toReactElement = (htmlString: string): VNode => {
 					});
 					delete props[0];
 				}
+				// numbered props failing on svgs
+				props = Object.entries(props).reduce((newProps, [key, value]) => {
+						if (Number.isNaN(Number(key))) {
+								newProps[key] = value;
+						}
+						return newProps;
+				}, {});
 				props.children = [] as unknown as string;
 				Object.assign(newNode, { props });
 				nodeMap.set(node, newNode);
